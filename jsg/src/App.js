@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import Home from './components/Home';
-import Header from './components/Header';
-import TicTacToe from './components/TicTacToe';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Header from './components/Header';
+import QuickLinks from './components/QuickLinks';
+import Home from './components/Home';
+import TicTacToe from './components/TicTacToe';
 import './dist/output.css';
 import './input.css';
 
@@ -23,12 +24,14 @@ function App() {
   return (
     <Router>
       <div className="flex flex-col h-screen">
-        <Header />
+        <Header>
+          <QuickLinks />
+        </Header>
         <div className="flex-grow bg-gray-100">
           <div className="container mx-auto px-4 py-8">
             <Routes>
               {loading ? (
-                <div>Loading...</div>
+                <Route path="*" element={<div>Loading...</div>} />
               ) : (
                 <Route path="/" element={<Home />} />
               )}
@@ -42,6 +45,7 @@ function App() {
 }
 
 export default App;
+
 
 
 
