@@ -1,43 +1,58 @@
 import React, { useState } from 'react';
-import TicTacToe from '../TicTacToe';
-import QuickLinks from '../QuickLinks';
 
 const Home = () => {
-  // set state to handle page changes
   const [currentPage, setCurrentPage] = useState('home');
 
-  // array of links to render
-  const links = [
-    { id: 'home', label: 'Home' },
-    { id: 'tictactoe', label: 'Tic Tac Toe' },
-    // add more links here as needed
+  const pages = [
+    { id: 'home', label: 'Home', link: '/' },
+    { id: 'tictactoe', label: 'Tic Tac Toe', link: '/tic-tac-toe' },
   ];
 
-  // checks which page we are currently on to render content
   const renderPage = () => {
     switch (currentPage) {
       case 'home':
-        return <h1>Welcome to the Home page!</h1>;
+        return (
+          <div className="grid grid-cols-3 gap-4">
+            {pages.map((page) => (
+              <a key={page.id} href={page.link}>
+                <div className="bg-gray-200 h-32 flex justify-center items-center">
+                  {page.label}
+                </div>
+              </a>
+            ))}
+          </div>
+        );
       case 'tictactoe':
-        return <TicTacToe genre="tictactoe" />;
-      // add more cases here as needed
+        return null;
       default:
         return null;
     }
   };
+  
 
-  // handles page change state
-  const handlePageChange = (page) => setCurrentPage(page);
+  // const handlePageChange = (page) => {
+  //   setCurrentPage(page);
+  // };
 
   return (
     <>
-      <QuickLinks links={links} handlePageChange={handlePageChange}/>
-      <div className="drawLine" style={{width: '100%'}}></div>
-      {renderPage()}
+     
+        <ul>
+          {pages.map((page) => (
+            <li key={page.id}>
+            </li>
+          ))}
+        </ul>
+      <div className="p-8">{renderPage()}</div>
     </>
   );
 };
 
 export default Home;
+
+
+
+
+
 
 

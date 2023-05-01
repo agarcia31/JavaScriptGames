@@ -1,15 +1,39 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
-const QuickLinks = ({ handlePageChange }) => {
+const QuickLinks = ({ pages = [], handlePageChange, className }) => {
+  const handleLinkClick = (page) => {
+    handlePageChange(page);
+  };
+
   return (
-    <div>
-      <button onClick={() => handlePageChange('home')}>Home</button>
-      <button onClick={() => handlePageChange('tictactoe')}>Tic Tac Toe</button>
-    </div>
+    <nav className={`flex justify-between items-center py-4 ${className}`}>
+      <ul className="flex mr-10">
+        {pages.length > 0 &&
+          pages.map((page) => (
+            <li key={page.route}>
+              <Link
+                to={page.route}
+                className="mx-4 text-gray-600 hover:text-gray-800"
+                onClick={() => handleLinkClick(page.id)}
+              >
+                {page.label}
+              </Link>
+            </li>
+          ))}
+      </ul>
+    </nav>
   );
 };
 
-export default QuickLinks; // add this line to export the component
+export default QuickLinks;
+
+
+
+
+
+
+
 
 
 

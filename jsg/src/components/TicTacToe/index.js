@@ -15,7 +15,7 @@ const TicTacToe = () => {
 
   const renderSquare = (i) => {
     return (
-      <button className="square" onClick={() => handleClick(i)}>
+      <button className="border-2 border-gray-500 p-4 text-4xl font-bold" onClick={() => handleClick(i)}>
         {board[i]}
       </button>
     );
@@ -31,26 +31,12 @@ const TicTacToe = () => {
   }
 
   return (
-    <div className="game">
-      <div className="game-board">
-        <div className="board-row">
-          {renderSquare(0)}
-          {renderSquare(1)}
-          {renderSquare(2)}
-        </div>
-        <div className="board-row">
-          {renderSquare(3)}
-          {renderSquare(4)}
-          {renderSquare(5)}
-        </div>
-        <div className="board-row">
-          {renderSquare(6)}
-          {renderSquare(7)}
-          {renderSquare(8)}
-        </div>
-      </div>
-      <div className="game-info">
-        <div>{status}</div>
+    <div className="flex flex-col items-center justify-center h-screen">
+      <div className="text-4xl font-bold mb-4">{status}</div>
+      <div className="grid grid-cols-3 gap-4">
+        {board.map((square, index) => (
+          <div key={index}>{renderSquare(index)}</div>
+        ))}
       </div>
     </div>
   );
@@ -77,3 +63,6 @@ const calculateWinner = (board) => {
 };
 
 export default TicTacToe;
+
+
+

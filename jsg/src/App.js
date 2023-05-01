@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import Home from './components/Home';
 import Header from './components/Header';
 import TicTacToe from './components/TicTacToe';
-import QuickLinks from './components/QuickLinks';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './dist/output.css';
 import './input.css';
+import pages from './pages';
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -21,12 +21,14 @@ function App() {
     };
   }, []);
 
+  const handlePageChange = (pageId) => {
+    // Do something with the selected page ID
+  };
+
   return (
     <Router>
       <div className="flex flex-col h-screen">
-        <Header>
-          <QuickLinks />
-        </Header>
+        <Header pages={pages} handlePageChange={handlePageChange} />
         <div className="flex-grow bg-gray-100">
           <div className="container mx-auto px-4 py-8">
             {loading ? (
@@ -45,12 +47,4 @@ function App() {
 }
 
 export default App;
-
-
-
-
-
-
-
-
 
