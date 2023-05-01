@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import TicTacToe from '../TicTacToe';
 import QuickLinks from '../QuickLinks';
 
-
 const Home = () => {
-  // set state to handle page changes 
+  // set state to handle page changes
   const [currentPage, setCurrentPage] = useState('home');
 
   // array of links to render
@@ -18,7 +17,7 @@ const Home = () => {
   const renderPage = () => {
     switch (currentPage) {
       case 'home':
-        return <Home />;
+        return <h1>Welcome to the Home page!</h1>;
       case 'tictactoe':
         return <TicTacToe genre="tictactoe" />;
       // add more cases here as needed
@@ -40,4 +39,5 @@ const Home = () => {
 };
 
 export default Home;
+
 

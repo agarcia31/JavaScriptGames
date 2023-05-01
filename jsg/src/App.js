@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Header from './components/Header';
-import QuickLinks from './components/QuickLinks';
 import Home from './components/Home';
+import Header from './components/Header';
 import TicTacToe from './components/TicTacToe';
+import QuickLinks from './components/QuickLinks';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './dist/output.css';
 import './input.css';
 
@@ -29,14 +29,14 @@ function App() {
         </Header>
         <div className="flex-grow bg-gray-100">
           <div className="container mx-auto px-4 py-8">
-            <Routes>
-              {loading ? (
-                <Route path="*" element={<div>Loading...</div>} />
-              ) : (
+            {loading ? (
+              <div>Loading...</div>
+            ) : (
+              <Routes>
                 <Route path="/" element={<Home />} />
-              )}
-              <Route path="/tic-tac-toe" element={<TicTacToe />} />
-            </Routes>
+                <Route path="/tic-tac-toe" element={<TicTacToe />} />
+              </Routes>
+            )}
           </div>
         </div>
       </div>
@@ -45,6 +45,9 @@ function App() {
 }
 
 export default App;
+
+
+
 
 
 
