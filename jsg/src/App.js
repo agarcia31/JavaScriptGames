@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Home from './components/Home';
 import Header from './components/Header';
 import BattleShip from './components/BattleShip';
+import Connect4 from './components/ConnectFour';
 import TicTacToe from './components/TicTacToe';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './dist/output.css';
@@ -39,6 +40,7 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/tic-tac-toe" element={<TicTacToe />} />
                 <Route path="/battleship" element={<BattleShip />} />
+                <Route path="/connect4" element={<Connect4 />} />
               </Routes>
             )}
           </div>
