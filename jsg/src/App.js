@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Home from './components/Home';
 import Header from './components/Header';
+import BattleShip from './components/BattleShip';
 import TicTacToe from './components/TicTacToe';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './dist/output.css';
@@ -14,7 +15,7 @@ function App() {
     // Simulate a delay to show a loading spinner
     const timeoutId = setTimeout(() => {
       setLoading(false);
-    }, 2000);
+    }, 1000);
 
     return () => {
       clearTimeout(timeoutId);
@@ -37,6 +38,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/tic-tac-toe" element={<TicTacToe />} />
+                <Route path="/battleship" element={<BattleShip />} />
               </Routes>
             )}
           </div>
@@ -47,4 +49,5 @@ function App() {
 }
 
 export default App;
+
 
