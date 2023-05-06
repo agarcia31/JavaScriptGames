@@ -7,7 +7,7 @@ const Home = () => {
     { id: 'home', label: 'Home', link: '/' },
     { id: 'tictactoe', label: 'Tic Tac Toe', link: '/tic-tac-toe' },
     { id: 'battleship', label: 'Battle Ship', link: '/battleship' },
-    { id: 'connect4', label: 'Connect 4', link: '/connect4' },
+    { id: 'connectfour', label: 'Connect Four', link: '/connect-four' },
   ];
 
   const renderPage = () => {

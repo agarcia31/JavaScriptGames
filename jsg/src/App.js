@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Home from './components/Home';
 import Header from './components/Header';
 import BattleShip from './components/BattleShip';
-import Connect4 from './components/ConnectFour';
+import ConnectFour from './components/ConnectFour';
 import TicTacToe from './components/TicTacToe';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './dist/output.css';
@@ -24,13 +24,15 @@ function App() {
   }, []);
 
   const handlePageChange = (pageId) => {
-    // Do something with the selected page ID
+    console.log(`Selected page ID: ${pageId}`);
   };
+  
 
   return (
     <Router>
       <div className="flex flex-col h-screen">
-        <Header pages={pages} handlePageChange={handlePageChange} />
+      <Header pages={pages} handlePageChange={handlePageChange} />
+
         <div className="flex-grow bg-gray-100">
           <div className="container mx-auto px-4 py-8">
             {loading ? (
@@ -40,7 +42,7 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/tic-tac-toe" element={<TicTacToe />} />
                 <Route path="/battleship" element={<BattleShip />} />
-                <Route path="/connect4" element={<Connect4 />} />
+                <Route path="/connect-four" element={<ConnectFour />} />
               </Routes>
             )}
           </div>
