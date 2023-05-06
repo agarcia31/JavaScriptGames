@@ -4,6 +4,7 @@ import Header from './components/Header';
 import BattleShip from './components/BattleShip';
 import ConnectFour from './components/ConnectFour';
 import TicTacToe from './components/TicTacToe';
+import MineSweeper from './components/MineSweeper';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './dist/output.css';
 import './input.css';
@@ -43,6 +44,7 @@ function App() {
                 <Route path="/tic-tac-toe" element={<TicTacToe />} />
                 <Route path="/battleship" element={<BattleShip />} />
                 <Route path="/connect-four" element={<ConnectFour />} />
+                <Route path="/mine-sweeper" element={<MineSweeper />} />
               </Routes>
             )}
           </div>

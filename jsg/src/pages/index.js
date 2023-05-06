@@ -12,12 +12,17 @@ const pages = [
   {
     id:3,
     route: '/battleship',
-    label: 'Battle Ship',
+    label: 'Battle Ship "under construction"',
   },
   {
     id:4,
     route: '/connect-four',
     label: 'Connect Four',
+  },
+  {
+    id:5,
+    route: '/mine-sweeper',
+    label: 'Mine Sweeper',
   },
 ];
 
