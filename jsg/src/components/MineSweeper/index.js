@@ -87,6 +87,16 @@ function MineSweeper() {
     setKey((prev) => prev + 1);
   }
 
+  function handleNumMinesChange(event) {
+    const value = parseInt(event.target.value);
+    if (isNaN(value) || value < 1 || value > 100) {
+      setNumMines("");
+    } else {
+      setNumMines(value);
+    }
+  }
+  
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
       <div className="w-1/2 p-8 bg-white rounded-lg shadow-lg flex-grow">
@@ -98,8 +108,16 @@ function MineSweeper() {
           <p className="text-lg ml-8 mr-4 font-semibold">
             Number of safe spots: {numSafeSpots}
           </p>
+          <input
+            type="number"
+            min="0"
+            max="100"
+            value={numMines}
+            onChange={handleNumMinesChange}
+            className="w-16 bg-gray-200 text-center font-bold"
+          />
         </div>
-  
+
         <table className="table-auto mx-auto bg-gray-200 p-2 rounded-lg shadow-lg">
           <tbody>
             {board.map((row, rowIndex) => (
@@ -111,20 +129,20 @@ function MineSweeper() {
                     className={`border w-8 h-8 text-center ${
                       cell.isRevealed
                         ? cell.isMine
-                          ? "bg-red-500"
+                          ? "bg-red-600"
                           : cell.adjacentMines === 0
-                          ? "bg-gray-400 text-gray-400"
+                          ? "bg-gray-500 text-gray-400"
                           : "bg-black"
                         : "bg-black"
                     }`}
                   >
-                    {cell.isRevealed &&
-                      cell.adjacentMines > 0 &&
+                    {cell.isRevealed && cell.adjacentMines > 0 && (
                       <span className="text-lg font-bold">
                         {cell.adjacentMines}
-                      </span>}
+                      </span>
+                    )}
                     {cell.isRevealed && cell.isMine && (
-                      <i className="inline-block text-red-800">
+                      <i className="inline-block text-red-900">
                         <FontAwesomeIcon icon={faBomb} className="w-6 h-6" />
                       </i>
                     )}
@@ -134,7 +152,19 @@ function MineSweeper() {
             ))}
           </tbody>
         </table>
-  
+
+        {gameOver && (
+          <div className="text-3xl font-bold text-red-500 text-center mt-6">
+            Game Over!
+          </div>
+        )}
+
+        {numSafeSpots === 0 && (
+          <div className="text-3xl font-bold text-green-500 text-center mt-6">
+            You Win!
+          </div>
+        )}
+
         <div className="flex justify-center mt-6">
           <button
             className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded transition-all duration-200 ease-in-out"
@@ -146,7 +176,6 @@ function MineSweeper() {
       </div>
     </div>
   );
-  
 }
 
 export default MineSweeper;
