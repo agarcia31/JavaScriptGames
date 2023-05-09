@@ -1,180 +1,392 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBomb } from "@fortawesome/free-solid-svg-icons";
+import Timer from "../Timer";
 
 function MineSweeper() {
   const [board, setBoard] = useState([]);
   const [numMines, setNumMines] = useState(10);
   const [gameOver, setGameOver] = useState(false);
   const [numSafeSpots, setNumSafeSpots] = useState(100 - numMines);
-  const [key, setKey] = useState(0);
+  const [boardSize, setBoardSize] = useState(8);
+  const [time, setTime] = useState(0);
 
-  useEffect(() => {
-    const newBoard = [];
-    for (let i = 0; i < 10; i++) {
-      const row = [];
-      for (let j = 0; j < 10; j++) {
-        row.push({
-          isMine: false,
-          isRevealed: false,
-          adjacentMines: 0,
-        });
-      }
-      newBoard.push(row);
+  function create_board(boardWidth, boardHeight, numMines) {
+    const board = [];
+
+    // Create an empty board with the specified dimensions
+    for (let i = 0; i < boardHeight; i++) {
+      board[i] = Array(boardWidth).fill(0);
     }
 
+    // Place the specified number of mines randomly on the board
     for (let i = 0; i < numMines; i++) {
-      const randomRow = Math.floor(Math.random() * 10);
-      const randomCol = Math.floor(Math.random() * 10);
-      if (newBoard[randomRow][randomCol].isMine) {
-        i--;
-      } else {
-        newBoard[randomRow][randomCol].isMine = true;
-      }
+      let x, y;
+      do {
+        x = Math.floor(Math.random() * boardWidth);
+        y = Math.floor(Math.random() * boardHeight);
+      } while (board[y][x] === "mine");
+      board[y][x] = "mine";
     }
 
-    setBoard(newBoard);
-    setNumSafeSpots(100 - numMines);
-    setGameOver(false);
-  }, [numMines, key]);
-
-  function getNeighbors(row, col) {
-    const neighbors = [];
-    for (let i = Math.max(row - 1, 0); i <= Math.min(row + 1, 9); i++) {
-      for (let j = Math.max(col - 1, 0); j <= Math.min(col + 1, 9); j++) {
-        if (i === row && j === col) {
-          continue;
+    // Calculate the number of adjacent mines for each cell
+    for (let y = 0; y < boardHeight; y++) {
+      for (let x = 0; x < boardWidth; x++) {
+        if (board[y][x] !== "mine") {
+          let count = 0;
+          if (y > 0 && x > 0 && board[y - 1][x - 1] === "mine") count++;
+          if (y > 0 && board[y - 1][x] === "mine") count++;
+          if (y > 0 && x < boardWidth - 1 && board[y - 1][x + 1] === "mine")
+            count++;
+          if (x > 0 && board[y][x - 1] === "mine") count++;
+          if (x < boardWidth - 1 && board[y][x + 1] === "mine") count++;
+          if (y < boardHeight - 1 && x > 0 && board[y + 1][x - 1] === "mine")
+            count++;
+          if (y < boardHeight - 1 && board[y + 1][x] === "mine") count++;
+          if (
+            y < boardHeight - 1 &&
+            x < boardWidth - 1 &&
+            board[y + 1][x + 1] === "mine"
+          )
+            count++;
+          board[y][x] = count;
         }
-        neighbors.push([i, j]);
       }
     }
-    return neighbors;
+    return board;
   }
 
-  function handleReveal(row, col) {
+  // Set the initial state of the board variable using the create_board function
+  useEffect(() => {
+    setBoard(create_board(boardSize, boardSize, numMines));
+  }, []);
+
+  const difficultyLevels = {
+    easy: { width: 8, height: 8, mines: 10 },
+    medium: { width: 16, height: 16, mines: 40 },
+    hard: { width: 30, height: 16, mines: 99 },
+  };
+
+  function create_board_with_difficulty(difficulty) {
+    const { width, height, mines } = difficultyLevels[difficulty];
+    setBoard(create_board(width, height, mines));
+  }
+
+  // Example usage: create a game board with the "medium" difficulty level
+  create_board_with_difficulty("medium");
+
+  // Function to start a new game
+  function startGame() {
+    setGameOver(false);
+
+    // Create a new game board with the current settings
+    const newBoard = create_board(boardSize, boardSize, numMines);
+    setBoard(newBoard);
+    setNumSafeSpots(boardSize * boardSize - numMines);
+
+    // Start the timer
+    const startTime = new Date().getTime();
+    setInterval(() => {
+      const currentTime = new Date().getTime();
+      const elapsedTime = (currentTime - startTime) / 1000;
+      setTime(elapsedTime);
+    }, 1000);
+  }
+
+  // Function to handle changes to the game board size
+  const handleBoardSizeChange = (event) => {
+    const size = parseInt(event.target.value);
+    const maxMines = Math.floor(size * size * 0.15); // Maximum number of mines based on 15% of total spots
+    let newMines = Math.floor(
+      (numMines * size * size) / (boardSize * boardSize)
+    ); // Maintain same mine density when changing board size
+    newMines = Math.min(newMines, maxMines); // Ensure number of mines doesn't exceed maximum
+
+    // Update state with new board size and number of mines
+    setBoardSize(size);
+    setNumMines(newMines);
+  };
+
+  useEffect(() => {
+    startGame(); // Start a new game when the component is mounted
+  }, []);
+
+  // This function is called whenever a cell on the game board is clicked
+  function handleCellClick(row, col) {
+    // Get the cell that was clicked
     const clickedCell = board[row][col];
-    if (clickedCell.isMine) {
-      setGameOver(true);
 
-      const newBoard = board.map((row, rowIndex) => {
-        return row.map((cell, colIndex) => {
-          if (cell.isMine) {
-            return {
-              ...cell,
-              isRevealed: true,
-            };
-          }
-          return cell;
-        });
-      });
-
-      setBoard(newBoard);
+    // If the game is over or the cell has already been revealed, do nothing
+    if (gameOver || clickedCell.isRevealed) {
       return;
     }
 
-    if (!clickedCell.isRevealed) {
-      const newBoard = [...board];
-      newBoard[row][col].isRevealed = true;
-      setBoard(newBoard);
+    // If the clicked cell contains a mine, end the game and reveal all mines on the board
+    if (clickedCell.isMine) {
+      clickedCell.isRevealed = true;
+      setGameOver(true);
+      revealAllMines();
+      return;
+    }
 
-      if (!clickedCell.isMine) {
-        setNumSafeSpots((prev) => prev - 1);
+    // If the clicked cell is not a mine, reveal it and any adjacent empty cells
+    const newBoard = [...board];
+    const numAdjacentMines = getNumAdjacentMines(row, col);
+
+    if (numAdjacentMines === 0) {
+      revealEmptyCells(row, col, newBoard);
+    } else {
+      newBoard[row][col].isRevealed = true;
+    }
+
+    // Update the game board and decrement the number of safe spots remaining
+    setBoard(newBoard);
+    setNumSafeSpots(numSafeSpots - 1);
+
+    // If all safe spots have been revealed, end the game
+    if (numSafeSpots === numMines) {
+      setGameOver(true);
+    }
+  }
+
+  // This function returns the number of mines adjacent to a given cell
+  function getNumAdjacentMines(row, col) {
+    let numMines = 0;
+    const adjacentCells = getAdjacentCells(row, col);
+
+    // Check each adjacent cell to see if it contains a mine
+    adjacentCells.forEach(({ row: adjRow, col: adjCol }) => {
+      if (board[adjRow][adjCol].isMine) {
+        numMines++;
+      }
+    });
+
+    return numMines;
+  }
+
+  // This function returns an array of all cells adjacent to a given cell
+  function getAdjacentCells(row, col) {
+    const adjacentCells = [];
+
+    // Check each cell surrounding the given cell to see if it is on the game board
+    // and not the cell itself, and if so, add it to the adjacentCells array
+    for (let r = row - 1; r <= row + 1; r++) {
+      for (let c = col - 1; c <= col + 1; c++) {
+        if (
+          r >= 0 &&
+          r < boardSize &&
+          c >= 0 &&
+          c < boardSize &&
+          !(r === row && c === col)
+        ) {
+          adjacentCells.push({ row: r, col: c });
+        }
       }
     }
+
+    return adjacentCells;
   }
 
-  function handleRestart() {
-    setKey((prev) => prev + 1);
+  function revealEmptyCells(row, col, newBoard) {
+    // get adjacent cells
+    const adjacentCells = getAdjacentCells(row, col);
+
+    // reveal the clicked cell
+    newBoard[row][col].isRevealed = true;
+
+    // recursively reveal adjacent cells until no more empty cells are found
+    adjacentCells.forEach(({ row: adjRow, col: adjCol }) => {
+      const adjCell = newBoard[adjRow][adjCol];
+      if (!adjCell.isRevealed && !adjCell.isMine) {
+        const numAdjacentMines = getNumAdjacentMines(adjRow, adjCol);
+        if (numAdjacentMines === 0) {
+          revealEmptyCells(adjRow, adjCol, newBoard);
+        } else {
+          newBoard[adjRow][adjCol].isRevealed = true;
+        }
+        setNumSafeSpots(numSafeSpots - 1);
+      }
+    });
   }
 
-  function handleNumMinesChange(event) {
-    const value = parseInt(event.target.value);
-    if (isNaN(value) || value < 1 || value > 100) {
-      setNumMines("");
-    } else {
-      setNumMines(value);
+  function revealAllMines() {
+    // create a new board with revealed mines
+    const newBoard = [...board];
+    newBoard.forEach((row) => {
+      row.forEach((cell) => {
+        if (cell.isMine) {
+          cell.isRevealed = true;
+        }
+      });
+    });
+
+    // update the board state
+    setBoard(newBoard);
+  }
+
+  function handleContextMenu(event, row, col) {
+    // prevent default right-click behavior
+    event.preventDefault();
+
+    // get the clicked cell
+    const clickedCell = board[row][col];
+
+    // ignore the click if the game is over or the cell is already revealed
+    if (gameOver || clickedCell.isRevealed) {
+      return;
     }
+
+    // toggle the flag state of the cell
+    const newBoard = [...board];
+    const flagging = !clickedCell.isFlagged;
+    newBoard[row][col] = {
+      ...clickedCell,
+      isFlagged: flagging,
+    };
+
+    // update the board state
+    setBoard(newBoard);
   }
-  
+
+  // define the initial game state
+  let gameState = {
+    board: [],
+    mines: 0,
+    minesRemaining: 0,
+    gameOver: false,
+  };
+
+  function revealMines(board) {
+    // reveal all mines on the board
+    board.forEach((row) => {
+      row.forEach((cell) => {
+        if (cell.isMine) {
+          cell.isRevealed = true;
+        }
+      });
+    });
+
+    // set the game over flag
+    gameState.gameOver = true;
+  }
+
+  function revealBoard(board) {
+    board.forEach((row) => {
+      row.forEach((cell) => {
+        cell.isRevealed = true;
+      });
+    });
+    gameState.gameOver = true;
+  }
+
+  function countAdjacentMines(board, row, col) {
+    let count = 0;
+    const numRows = board.length;
+    const numCols = board[0].length;
+
+    // Check all 8 adjacent cells for mines
+    for (let i = row - 1; i <= row + 1; i++) {
+      for (let j = col - 1; j <= col + 1; j++) {
+        // Make sure the current cell is not out of bounds
+        if (i >= 0 && i < numRows && j >= 0 && j < numCols) {
+          const cell = board[i][j];
+          if (cell.isMine) {
+            count++;
+          }
+        }
+      }
+    }
+
+    return count;
+  }
+
+  function checkForWin(board) {
+    for (let i = 0; i < board.length; i++) {
+      for (let j = 0; j < board[0].length; j++) {
+        const cell = board[i][j];
+        if (!cell.isMine && !cell.isRevealed) {
+          // If a safe cell is not revealed, the game is not won yet
+          return false;
+        } else if (cell.isMine && !cell.isFlagged) {
+          // If a mine is not flagged, the game is not won yet
+          return false;
+        }
+      }
+    }
+    // If all safe spots are revealed and no mines are left unflagged, the game is won
+    return true;
+  }
+
+  function renderBoard(board) {
+    const boardElement = document.getElementById("board");
+
+    boardElement.innerHTML = "";
+
+    board.forEach((row, rowIndex) => {
+      const rowElement = document.createElement("div");
+      rowElement.className = "row";
+
+      row.forEach((cell, colIndex) => {
+        const cellElement = document.createElement("div");
+        cellElement.className = "cell";
+
+        if (cell.isRevealed) {
+          cellElement.classList.add("revealed");
+
+          if (cell.isMine) {
+            cellElement.classList.add("mine");
+          } else {
+            const count = countAdjacentMines(board, rowIndex, colIndex);
+            if (count > 0) {
+              cellElement.textContent = count;
+            }
+          }
+        } else {
+          if (cell.isFlagged) {
+            cellElement.classList.add("flagged");
+          }
+        }
+
+        cellElement.addEventListener("click", () =>
+          handleCellClick(board, cell, rowIndex, colIndex)
+        );
+        cellElement.addEventListener("contextmenu", (e) => {
+          e.preventDefault();
+          handleContextMenu(cell);
+        });
+
+        rowElement.appendChild(cellElement);
+      });
+
+      boardElement.appendChild(rowElement);
+    });
+  }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
-      <div className="w-1/2 p-8 bg-white rounded-lg shadow-lg flex-grow">
-        <h1 className="text-4xl font-bold mb-4 text-center">Mine Sweeper</h1>
-        <div className="flex justify-between items-center mb-6">
-          <p className="text-lg mr-4 font-semibold">
-            Number of mines: {numMines}
-          </p>
-          <p className="text-lg ml-8 mr-4 font-semibold">
-            Number of safe spots: {numSafeSpots}
-          </p>
-          <input
-            type="number"
-            min="0"
-            max="100"
-            value={numMines}
-            onChange={handleNumMinesChange}
-            className="w-16 bg-gray-200 text-center font-bold"
-          />
+{/* <div className="board">
+  {board.map((row, rowIndex) => (
+    <div className="row" key={rowIndex}>
+      {row.map((cell, colIndex) => (
+        <div
+          className={`cell ${cell.isRevealed ? "revealed" : ""}`}
+          key={`${rowIndex}-${colIndex}`}
+          onClick={() => handleCellClick(rowIndex, colIndex)}
+          onContextMenu={(event) => handleContextMenu(event, rowIndex, colIndex)}
+        >
+          {cell.isRevealed ? (
+            cell.isMine ? (
+              <span className="mine">💣</span>
+            ) : (
+              <span className="number">{cell.adjacentMines}</span>
+            )
+          ) : cell.isFlagged ? (
+            <span className="flag">🚩</span>
+          ) : null}
         </div>
-
-        <table className="table-auto mx-auto bg-gray-200 p-2 rounded-lg shadow-lg">
-          <tbody>
-            {board.map((row, rowIndex) => (
-              <tr key={rowIndex}>
-                {row.map((cell, colIndex) => (
-                  <td
-                    key={`${rowIndex}-${colIndex}`}
-                    onClick={() => handleReveal(rowIndex, colIndex)}
-                    className={`border w-8 h-8 text-center ${
-                      cell.isRevealed
-                        ? cell.isMine
-                          ? "bg-red-600"
-                          : cell.adjacentMines === 0
-                          ? "bg-gray-500 text-gray-400"
-                          : "bg-black"
-                        : "bg-black"
-                    }`}
-                  >
-                    {cell.isRevealed && cell.adjacentMines > 0 && (
-                      <span className="text-lg font-bold">
-                        {cell.adjacentMines}
-                      </span>
-                    )}
-                    {cell.isRevealed && cell.isMine && (
-                      <i className="inline-block text-red-900">
-                        <FontAwesomeIcon icon={faBomb} className="w-6 h-6" />
-                      </i>
-                    )}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {gameOver && (
-          <div className="text-3xl font-bold text-red-500 text-center mt-6">
-            Game Over!
-          </div>
-        )}
-
-        {numSafeSpots === 0 && (
-          <div className="text-3xl font-bold text-green-500 text-center mt-6">
-            You Win!
-          </div>
-        )}
-
-        <div className="flex justify-center mt-6">
-          <button
-            className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded transition-all duration-200 ease-in-out"
-            onClick={handleRestart}
-          >
-            Restart
-          </button>
-        </div>
-      </div>
+      ))}
     </div>
+  ))}
+</div> */}
   );
 }
 
