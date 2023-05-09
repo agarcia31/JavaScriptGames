@@ -53,6 +53,7 @@ function MineSweeper() {
         }
       }
     }
+    console.log("Board created:", board);
     return board;
   }
 
@@ -66,26 +67,36 @@ function MineSweeper() {
     medium: { width: 16, height: 16, mines: 40 },
     hard: { width: 30, height: 16, mines: 99 },
   };
-
+  
   function create_board_with_difficulty(difficulty) {
+    console.log(`Creating board with ${difficulty} difficulty level`);
     const { width, height, mines } = difficultyLevels[difficulty];
-    setBoard(create_board(width, height, mines));
+    const board = create_board(width, height, mines);
+    console.log(`Board created with dimensions ${width} x ${height} and ${mines} mines`);
+    setBoard(board);
   }
-
-  // Example usage: create a game board with the "medium" difficulty level
-  create_board_with_difficulty("medium");
-
+  
+  // Set the initial state of the board variable using the create_board function
+  useEffect(() => {
+    create_board_with_difficulty("medium");
+  }, []);
+  
+  
   // Function to start a new game
   function startGame() {
+    console.log("Starting new game");
+  
     setGameOver(false);
-
+  
     // Create a new game board with the current settings
     const newBoard = create_board(boardSize, boardSize, numMines);
+    console.log(`New board created with dimensions ${boardSize} x ${boardSize} and ${numMines} mines`);
     setBoard(newBoard);
     setNumSafeSpots(boardSize * boardSize - numMines);
-
+  
     // Start the timer
     const startTime = new Date().getTime();
+    console.log("Starting timer");
     setInterval(() => {
       const currentTime = new Date().getTime();
       const elapsedTime = (currentTime - startTime) / 1000;
@@ -363,7 +374,7 @@ function MineSweeper() {
   }
 
   return (
-{/* <div className="board">
+ <div className="board">
   {board.map((row, rowIndex) => (
     <div className="row" key={rowIndex}>
       {row.map((cell, colIndex) => (
@@ -386,7 +397,7 @@ function MineSweeper() {
       ))}
     </div>
   ))}
-</div> */}
+</div> 
   );
 }
 
