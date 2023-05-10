@@ -402,33 +402,34 @@ function MineSweeper() {
 
         {/* Game Board */}
         <div className="grid grid-cols-8 justify-space">
-  {board.map((row, rowIndex) => (
-    <React.Fragment key={rowIndex}>
-      {row.map((cell, colIndex) => (
-        <button
-          key={`${rowIndex}${colIndex}`}
-          className={`w-10 h-10 ${
-            cell.isRevealed
-              ? cell.isMine
-                ? "bg-red-600"
-                : "bg-gray-400"
-              : "bg-gray-500"
-          } border border-gray-800 focus:outline-thick`}
-          onClick={() => handleCellClick(rowIndex, colIndex)}
-          onContextMenu={(e) => handleContextMenu(e, rowIndex, colIndex)}
-        >
-          {cell.isFlagged && "🚩"}
-          {cell.isRevealed &&
-            !cell.isMine &&
-            cell.neighborCount !== 0 &&
-            cell.neighborCount}
-          {cell.isRevealed && cell.isMine && "💣"}
-        </button>
-      ))}
-    </React.Fragment>
-  ))}
-</div>
-
+          {board.map((row, rowIndex) => (
+            <React.Fragment key={rowIndex}>
+              {row.map((cell, colIndex) => (
+                <button
+                  key={`${rowIndex}${colIndex}`}
+                  className={`w-10 h-10 ${
+                    cell.isRevealed
+                      ? cell.isMine
+                        ? "bg-red-600"
+                        : "bg-gray-400"
+                      : "bg-gray-500"
+                  } border border-gray-800 focus:outline-thick`}
+                  onClick={() => handleCellClick(rowIndex, colIndex)}
+                  onContextMenu={(e) =>
+                    handleContextMenu(e, rowIndex, colIndex)
+                  }
+                >
+                  {cell.isFlagged && "🚩"}
+                  {cell.isRevealed &&
+                    !cell.isMine &&
+                    cell.neighborCount !== 0 &&
+                    cell.neighborCount}
+                  {cell.isRevealed && cell.isMine && "💣"}
+                </button>
+              ))}
+            </React.Fragment>
+          ))}
+        </div>
 
         {/* Game Status */}
         <div className="flex justify-between items-center mt-4">
@@ -446,7 +447,26 @@ function MineSweeper() {
           </p>
         </div>
       </div>
+      <button
+  className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 focus:outline-none"
+  onClick={() => create_board_with_difficulty("easy")}
+>
+  Easy
+</button>
+<button
+  className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 focus:outline-none"
+  onClick={() => create_board_with_difficulty("medium")}
+>
+  Medium
+</button>
+<button
+  className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 focus:outline-none"
+  onClick={() => create_board_with_difficulty("hard")}
+>
+  Hard
+</button>
     </div>
+
   );
 }
 
