@@ -16,7 +16,7 @@ function MineSweeper() {
 
     // Create an empty board with the specified dimensions
     for (let i = 0; i < boardHeight; i++) {
-      board[i] = Array(boardWidth).fill(0);
+      board[i] = Array(boardWidth).fill(null);
     }
 
     // Place the specified number of mines randomly on the board
@@ -25,31 +25,50 @@ function MineSweeper() {
       do {
         x = Math.floor(Math.random() * boardWidth);
         y = Math.floor(Math.random() * boardHeight);
-      } while (board[y][x] === "mine");
-      board[y][x] = "mine";
+      } while (board[y][x] && board[y][x].isMine);
+      board[y][x] = { isMine: true, isRevealed: false };
     }
 
     // Calculate the number of adjacent mines for each cell
     for (let y = 0; y < boardHeight; y++) {
       for (let x = 0; x < boardWidth; x++) {
-        if (board[y][x] !== "mine") {
+        if (!board[y][x]) {
           let count = 0;
-          if (y > 0 && x > 0 && board[y - 1][x - 1] === "mine") count++;
-          if (y > 0 && board[y - 1][x] === "mine") count++;
-          if (y > 0 && x < boardWidth - 1 && board[y - 1][x + 1] === "mine")
+          if (
+            y > 0 &&
+            x > 0 &&
+            board[y - 1][x - 1] &&
+            board[y - 1][x - 1].isMine
+          )
             count++;
-          if (x > 0 && board[y][x - 1] === "mine") count++;
-          if (x < boardWidth - 1 && board[y][x + 1] === "mine") count++;
-          if (y < boardHeight - 1 && x > 0 && board[y + 1][x - 1] === "mine")
+          if (y > 0 && board[y - 1][x] && board[y - 1][x].isMine) count++;
+          if (
+            y > 0 &&
+            x < boardWidth - 1 &&
+            board[y - 1][x + 1] &&
+            board[y - 1][x + 1].isMine
+          )
             count++;
-          if (y < boardHeight - 1 && board[y + 1][x] === "mine") count++;
+          if (x > 0 && board[y][x - 1] && board[y][x - 1].isMine) count++;
+          if (x < boardWidth - 1 && board[y][x + 1] && board[y][x + 1].isMine)
+            count++;
+          if (
+            y < boardHeight - 1 &&
+            x > 0 &&
+            board[y + 1][x - 1] &&
+            board[y + 1][x - 1].isMine
+          )
+            count++;
+          if (y < boardHeight - 1 && board[y + 1][x] && board[y + 1][x].isMine)
+            count++;
           if (
             y < boardHeight - 1 &&
             x < boardWidth - 1 &&
-            board[y + 1][x + 1] === "mine"
+            board[y + 1][x + 1] &&
+            board[y + 1][x + 1].isMine
           )
             count++;
-          board[y][x] = count;
+          board[y][x] = { isMine: false, isRevealed: false, count };
         }
       }
     }
@@ -67,33 +86,36 @@ function MineSweeper() {
     medium: { width: 16, height: 16, mines: 40 },
     hard: { width: 30, height: 16, mines: 99 },
   };
-  
+
   function create_board_with_difficulty(difficulty) {
     console.log(`Creating board with ${difficulty} difficulty level`);
     const { width, height, mines } = difficultyLevels[difficulty];
     const board = create_board(width, height, mines);
-    console.log(`Board created with dimensions ${width} x ${height} and ${mines} mines`);
+    console.log(
+      `Board created with dimensions ${width} x ${height} and ${mines} mines`
+    );
     setBoard(board);
   }
-  
+
   // Set the initial state of the board variable using the create_board function
   useEffect(() => {
     create_board_with_difficulty("medium");
   }, []);
-  
-  
+
   // Function to start a new game
   function startGame() {
     console.log("Starting new game");
-  
+
     setGameOver(false);
-  
+
     // Create a new game board with the current settings
     const newBoard = create_board(boardSize, boardSize, numMines);
-    console.log(`New board created with dimensions ${boardSize} x ${boardSize} and ${numMines} mines`);
+    console.log(
+      `New board created with dimensions ${boardSize} x ${boardSize} and ${numMines} mines`
+    );
     setBoard(newBoard);
     setNumSafeSpots(boardSize * boardSize - numMines);
-  
+
     // Start the timer
     const startTime = new Date().getTime();
     console.log("Starting timer");
@@ -374,30 +396,57 @@ function MineSweeper() {
   }
 
   return (
- <div className="board">
+    <div className="flex justify-center items-center h-screen">
+      <div className="bg-black p-8 rounded-lg shadow-lg">
+        <h1 className="text-3xl font-bold text-white mb-4">Minesweeper</h1>
+
+        {/* Game Board */}
+        <div className="grid grid-cols-8 justify-space">
   {board.map((row, rowIndex) => (
-    <div className="row" key={rowIndex}>
+    <React.Fragment key={rowIndex}>
       {row.map((cell, colIndex) => (
-        <div
-          className={`cell ${cell.isRevealed ? "revealed" : ""}`}
-          key={`${rowIndex}-${colIndex}`}
+        <button
+          key={`${rowIndex}${colIndex}`}
+          className={`w-10 h-10 ${
+            cell.isRevealed
+              ? cell.isMine
+                ? "bg-red-600"
+                : "bg-gray-400"
+              : "bg-gray-500"
+          } border border-gray-800 focus:outline-thick`}
           onClick={() => handleCellClick(rowIndex, colIndex)}
-          onContextMenu={(event) => handleContextMenu(event, rowIndex, colIndex)}
+          onContextMenu={(e) => handleContextMenu(e, rowIndex, colIndex)}
         >
-          {cell.isRevealed ? (
-            cell.isMine ? (
-              <span className="mine">💣</span>
-            ) : (
-              <span className="number">{cell.adjacentMines}</span>
-            )
-          ) : cell.isFlagged ? (
-            <span className="flag">🚩</span>
-          ) : null}
-        </div>
+          {cell.isFlagged && "🚩"}
+          {cell.isRevealed &&
+            !cell.isMine &&
+            cell.neighborCount !== 0 &&
+            cell.neighborCount}
+          {cell.isRevealed && cell.isMine && "💣"}
+        </button>
       ))}
-    </div>
+    </React.Fragment>
   ))}
-</div> 
+</div>
+
+
+        {/* Game Status */}
+        <div className="flex justify-between items-center mt-4">
+          <p className="text-white">
+            Safe Spots Remaining: {numSafeSpots - numMines} / {numSafeSpots}
+          </p>
+          <button
+            className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 focus:outline-none"
+            onClick={() => startGame()}
+          >
+            Reset Game
+          </button>
+          <p className="text-white">
+            {gameOver && `Game Over! ${checkForWin ? "You Win!" : "You Lose!"}`}
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }
 
