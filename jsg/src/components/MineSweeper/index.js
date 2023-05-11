@@ -70,9 +70,9 @@ function MineSweeper() {
   }, []);
 
   const difficultyLevels = {
-    easy: { width: 8, height: 8, mines: 10 },
+    easy: { width: 8, height: 12, mines: 10 },
     medium: { width: 14, height: 16, mines: 20 },
-    hard: { width: 16, height: 32, mines: 48 },
+    hard: { width: 16, height: 48, mines: 48 },
   };
 
   const handleBoardSizeChange = (difficulty) => {
@@ -121,8 +121,8 @@ function MineSweeper() {
     // Get the cell that was clicked
     const clickedCell = board[row][col];
 
-    // If the game is over or the cell has already been revealed, do nothing
-    if (gameOver || clickedCell.isRevealed) {
+    // If the game is over, the cell is already revealed, or the cell is flagged, do nothing
+    if (gameOver || clickedCell.isRevealed || clickedCell.isFlagged) {
       return;
     }
 
@@ -368,80 +368,90 @@ function MineSweeper() {
   }
 
   return (
-<div className="flex justify-center items-center h-screen">
-  <div className="bg-black p-8 rounded-lg shadow-lg">
-    <h1 className="text-3xl font-bold text-white mb-4">Minesweeper</h1>
+    <div className="flex flex-col justify-center items-center h-screen bg-gradient-to-br from-green-400 via-blue-500 to-purple-500 p-8 rounded-lg shadow-lg border-2 border-gray-800 text-gray-100">
+      <div className="bg-gradient-to-br from-green-400 to-blue-600 p-8 rounded-lg shadow-lg text-gray-100 border border-green-900">
+        <h1 className="text-3xl font-bold text-white mb-4">Minesweeper</h1>
 
-    {/* Game Board */}
-    <div className="mt-8">
-      <div
-        className="grid grid-cols-32 grid-rows-32 justify-space"
-        style={{ gridTemplateColumns: `repeat(${board.length}, 1fr)` }}
-      >
-        {board.map((row, rowIndex) => (
-          <React.Fragment key={rowIndex}>
-            {row.map((cell, colIndex) => (
-              <button
-                key={`${rowIndex}${colIndex}`}
-                className={`w-10 h-10 ${
-                  cell.isRevealed
-                    ? cell.isMine
-                      ? "bg-red-600"
-                      : "bg-gray-400"
-                    : "bg-gray-500"
-                } border border-gray-800 focus:outline-thick`}
-                onClick={() => handleCellClick(rowIndex, colIndex)}
-                onContextMenu={(e) =>
-                  handleContextMenu(e, rowIndex, colIndex)
-                }
-              >
-                {cell.isFlagged && "🚩"}
-                {cell.isRevealed &&
-                  !cell.isMine &&
-                  cell.neighborCount !== 0 &&
-                  cell.neighborCount}
-                {cell.isRevealed && cell.isMine && "💣"}
-              </button>
-            ))}
-          </React.Fragment>
-        ))}
-      </div>
-    </div>
-
-        {/* Game Status */}
-        <div className="flex justify-between items-center mt-4">
-          <p className="text-white">
-            Safe Spots Remaining: {numSafeSpots - numMines} / {numSafeSpots}
-          </p>
-          <button
-            className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 focus:outline-none"
-            onClick={() => startGame()}
+        {/* Game Board */}
+        <div className="mt-8">
+          <div
+            className="grid grid-cols-32 grid-rows-32 justify-content-center items-center"
+            style={{ gridTemplateColumns: `repeat(${board.length}, 2rem)` }}
           >
-            Reset Game
-          </button>
-          <p className="text-white">
-            {gameOver && `Game Over! ${checkForWin ? "You Win!" : "You Lose!"}`}
-          </p>
+            {board.map((row, rowIndex) => (
+              <React.Fragment key={rowIndex}>
+                {row.map((cell, colIndex) => (
+            <button
+            key={`${rowIndex}${colIndex}`}
+            className={`w-10 h-10 flex-grow-0 flex-shrink-0 ${
+              cell.isRevealed
+                ? cell.isMine
+                  ? "bg-red-600"
+                  : "bg-gradient-to-br from-blue-500 to-purple-500"
+                : "bg-gradient-to-br from-blue-400 to-purple-400"
+            } border border-gray-800 focus:outline-thick hover:bg-gradient-to-br ${
+              cell.isRevealed
+                ? cell.isMine
+                  ? "bg-red-600"
+                  : "from-blue-500 to-purple-500"
+                : "from-blue-400 to-purple-400"
+            }`}
+            onClick={() => handleCellClick(rowIndex, colIndex)}
+            onContextMenu={(e) => handleContextMenu(e, rowIndex, colIndex)}
+          >
+            {cell.isFlagged && "🚩"}
+            {cell.isRevealed && !cell.isMine && cell.neighborCount !== 0 && cell.neighborCount}
+            {cell.isRevealed && cell.isMine && "💣"}
+          </button>         
+                  
+                ))}
+              </React.Fragment>
+            ))}
+          </div>
+
+          {/* Game Status */}
+          <div className="flex flex-col md:flex-row justify-between items-center mt-4">
+            <p className="text-white mb-2 md:mb-0">
+              Safe Spots Remaining: {numSafeSpots - numMines} / {numSafeSpots}
+            </p>
+
+            <p className="text-white">
+              {gameOver &&
+                `Game Over! ${checkForWin ? "You Win!" : "You Lose!"}`}
+            </p>
+          </div>
+
+          {/* Difficulty Buttons */}
+          <div className="flex justify-between items-center mt-4">
+            <div className="flex space-x-2">
+              <button
+                className="px-4 py-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 focus:outline-none"
+                onClick={() => handleBoardSizeChange("easy")}
+              >
+                Easy
+              </button>
+              <button
+                className="px-4 py-2 rounded-full bg-gradient-to-r from-green-500 to-blue-500 text-white hover:from-green-600 hover:to-blue-600 focus:outline-none"
+                onClick={() => handleBoardSizeChange("medium")}
+              >
+                Medium
+              </button>
+              <button
+                className="px-4 py-2 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:from-purple-600 hover:to-indigo-600 focus:outline-none"
+                onClick={() => handleBoardSizeChange("hard")}
+              >
+                Hard
+              </button>
+            </div>
+            <button
+              className="px-4 py-2 rounded-full bg-gradient-to-r from-red-500 to-yellow-500 text-white hover:from-red-600 hover:to-yellow-600 focus:outline-none"
+              onClick={() => startGame()}
+            >
+              Reset Game
+            </button>
+          </div>
         </div>
       </div>
-      <button
-        className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 focus:outline-none"
-        onClick={() => handleBoardSizeChange("easy")}
-      >
-        Easy
-      </button>
-      <button
-        className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 focus:outline-none"
-        onClick={() => handleBoardSizeChange("medium")}
-      >
-        Medium
-      </button>
-      <button
-        className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 focus:outline-none"
-        onClick={() => handleBoardSizeChange("hard")}
-      >
-        Hard
-      </button>
     </div>
   );
 }
