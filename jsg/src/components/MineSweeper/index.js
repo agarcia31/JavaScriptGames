@@ -71,7 +71,7 @@ function MineSweeper() {
 
   const difficultyLevels = {
     easy: { width: 8, height: 12, mines: 10 },
-    medium: { width: 14, height: 16, mines: 20 },
+    medium: { width: 12, height: 18, mines: 20 },
     hard: { width: 16, height: 48, mines: 48 },
   };
 
@@ -304,22 +304,34 @@ function MineSweeper() {
 
     return count;
   }
+  const [gameStatus, setGameStatus] = useState("ongoing");
 
   function checkForWin(board) {
+    let allSafeSpotsRevealed = true;
+    let allMinesFlagged = true;
+
+    // Check if all safe spots have been revealed and all mines are flagged
     for (let i = 0; i < board.length; i++) {
       for (let j = 0; j < board[0].length; j++) {
         const cell = board[i][j];
         if (!cell.isMine && !cell.isRevealed) {
-          // If a safe cell is not revealed, the game is not won yet
-          return false;
+          allSafeSpotsRevealed = false;
         } else if (cell.isMine && !cell.isFlagged) {
-          // If a mine is not flagged, the game is not won yet
-          return false;
+          allMinesFlagged = false;
         }
       }
     }
-    // If all safe spots are revealed and no mines are left unflagged, the game is won
-    return true;
+
+    if (allSafeSpotsRevealed && allMinesFlagged) {
+      setGameStatus("win");
+    } else {
+      // Set the game status based on the current state of the board
+      if (allSafeSpotsRevealed && allMinesFlagged) {
+        setGameStatus("won");
+      } else {
+        setGameStatus("ongoing");
+      }
+    }
   }
 
   function renderBoard(board) {
@@ -370,8 +382,20 @@ function MineSweeper() {
   return (
     <div className="flex flex-col justify-center items-center h-screen bg-gradient-to-br from-green-400 via-blue-500 to-purple-500 p-8 rounded-lg shadow-lg border-2 border-gray-800 text-gray-100">
       <div className="bg-gradient-to-br from-green-400 to-blue-600 p-8 rounded-lg shadow-lg text-gray-100 border border-green-900">
-        <h1 className="text-3xl font-bold text-white mb-4">Minesweeper</h1>
-
+        <h1 className="text-center text-3xl font-bold text-white mb-4">
+          Minesweeper
+        </h1>
+        <p className="text-white mb-2 md:mb-0">
+          Safe Spots Remaining: {numSafeSpots - numMines}
+        </p>
+        {/* Game Status */}
+        <div className="flex flex-col md:flex-row justify-between items-center mt-4">
+          <div className="flex flex-col md:flex-row justify-between items-center mt-4">
+            <p className="text-white">
+              {gameOver && (gameStatus === "won" ? "You Win!" : "You Lose!")}
+            </p>
+          </div>
+        </div>
         {/* Game Board */}
         <div className="mt-8">
           <div
@@ -381,44 +405,36 @@ function MineSweeper() {
             {board.map((row, rowIndex) => (
               <React.Fragment key={rowIndex}>
                 {row.map((cell, colIndex) => (
-            <button
-            key={`${rowIndex}${colIndex}`}
-            className={`w-10 h-10 flex-grow-0 flex-shrink-0 ${
-              cell.isRevealed
-                ? cell.isMine
-                  ? "bg-red-600"
-                  : "bg-gradient-to-br from-blue-500 to-purple-500"
-                : "bg-gradient-to-br from-blue-400 to-purple-400"
-            } border border-gray-800 focus:outline-thick hover:bg-gradient-to-br ${
-              cell.isRevealed
-                ? cell.isMine
-                  ? "bg-red-600"
-                  : "from-blue-500 to-purple-500"
-                : "from-blue-400 to-purple-400"
-            }`}
-            onClick={() => handleCellClick(rowIndex, colIndex)}
-            onContextMenu={(e) => handleContextMenu(e, rowIndex, colIndex)}
-          >
-            {cell.isFlagged && "🚩"}
-            {cell.isRevealed && !cell.isMine && cell.neighborCount !== 0 && cell.neighborCount}
-            {cell.isRevealed && cell.isMine && "💣"}
-          </button>         
-                  
+                  <button
+                    key={`${rowIndex}${colIndex}`}
+                    className={`w-10 h-10 flex-grow-0 flex-shrink-0 ${
+                      cell.isRevealed
+                        ? cell.isMine
+                          ? "bg-red-600"
+                          : "bg-gradient-to-br from-blue-500 to-purple-500"
+                        : "bg-gradient-to-br from-blue-400 to-purple-400"
+                    } border border-gray-800 focus:outline-thick hover:bg-gradient-to-br ${
+                      cell.isRevealed
+                        ? cell.isMine
+                          ? "bg-red-600"
+                          : "from-blue-500 to-purple-500"
+                        : "from-blue-400 to-purple-400"
+                    }`}
+                    onClick={() => handleCellClick(rowIndex, colIndex)}
+                    onContextMenu={(e) =>
+                      handleContextMenu(e, rowIndex, colIndex)
+                    }
+                  >
+                    {cell.isFlagged && "🚩"}
+                    {cell.isRevealed &&
+                      !cell.isMine &&
+                      cell.neighborCount !== 0 &&
+                      cell.neighborCount}
+                    {cell.isRevealed && cell.isMine && "💣"}
+                  </button>
                 ))}
               </React.Fragment>
             ))}
-          </div>
-
-          {/* Game Status */}
-          <div className="flex flex-col md:flex-row justify-between items-center mt-4">
-            <p className="text-white mb-2 md:mb-0">
-              Safe Spots Remaining: {numSafeSpots - numMines} / {numSafeSpots}
-            </p>
-
-            <p className="text-white">
-              {gameOver &&
-                `Game Over! ${checkForWin ? "You Win!" : "You Lose!"}`}
-            </p>
           </div>
 
           {/* Difficulty Buttons */}
