@@ -11,95 +11,85 @@ function MineSweeper() {
   const [boardSize, setBoardSize] = useState(8);
   const [time, setTime] = useState(0);
 
-  function create_board(boardWidth, boardHeight, numMines) {
+  function create_board(width, height, numMines) {
     const board = [];
 
     // Create an empty board with the specified dimensions
-    for (let i = 0; i < boardHeight; i++) {
-      board[i] = Array(boardWidth).fill(null);
+    for (let row = 0; row < height; row++) {
+      board.push(Array(width).fill(null));
     }
 
     // Place the specified number of mines randomly on the board
     for (let i = 0; i < numMines; i++) {
       let x, y;
       do {
-        x = Math.floor(Math.random() * boardWidth);
-        y = Math.floor(Math.random() * boardHeight);
+        x = Math.floor(Math.random() * width);
+        y = Math.floor(Math.random() * height);
       } while (board[y][x] && board[y][x].isMine);
       board[y][x] = { isMine: true, isRevealed: false };
     }
 
     // Calculate the number of adjacent mines for each cell
-    for (let y = 0; y < boardHeight; y++) {
-      for (let x = 0; x < boardWidth; x++) {
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
         if (!board[y][x]) {
           let count = 0;
-          if (
-            y > 0 &&
-            x > 0 &&
-            board[y - 1][x - 1] &&
-            board[y - 1][x - 1].isMine
-          )
-            count++;
-          if (y > 0 && board[y - 1][x] && board[y - 1][x].isMine) count++;
-          if (
-            y > 0 &&
-            x < boardWidth - 1 &&
-            board[y - 1][x + 1] &&
-            board[y - 1][x + 1].isMine
-          )
-            count++;
-          if (x > 0 && board[y][x - 1] && board[y][x - 1].isMine) count++;
-          if (x < boardWidth - 1 && board[y][x + 1] && board[y][x + 1].isMine)
-            count++;
-          if (
-            y < boardHeight - 1 &&
-            x > 0 &&
-            board[y + 1][x - 1] &&
-            board[y + 1][x - 1].isMine
-          )
-            count++;
-          if (y < boardHeight - 1 && board[y + 1][x] && board[y + 1][x].isMine)
-            count++;
-          if (
-            y < boardHeight - 1 &&
-            x < boardWidth - 1 &&
-            board[y + 1][x + 1] &&
-            board[y + 1][x + 1].isMine
-          )
-            count++;
+          for (let yOffset = -1; yOffset <= 1; yOffset++) {
+            for (let xOffset = -1; xOffset <= 1; xOffset++) {
+              const xNeighbor = x + xOffset;
+              const yNeighbor = y + yOffset;
+              if (
+                xNeighbor >= 0 &&
+                xNeighbor < width &&
+                yNeighbor >= 0 &&
+                yNeighbor < height &&
+                board[yNeighbor][xNeighbor] &&
+                board[yNeighbor][xNeighbor].isMine
+              ) {
+                count++;
+              }
+            }
+          }
           board[y][x] = { isMine: false, isRevealed: false, count };
         }
       }
     }
+
     console.log("Board created:", board);
     return board;
   }
 
   // Set the initial state of the board variable using the create_board function
   useEffect(() => {
-    setBoard(create_board(boardSize, boardSize, numMines));
+    const { width, height, mines } = difficultyLevels["easy"];
+    const newMines = Math.min(mines, Math.floor(width * height * 0.15));
+    setBoard(create_board(width, height, newMines));
+    setBoardSize(width);
+    setNumMines(newMines);
+    setNumSafeSpots(width * height - newMines);
   }, []);
 
   const difficultyLevels = {
     easy: { width: 8, height: 8, mines: 10 },
-    medium: { width: 16, height: 16, mines: 40 },
-    hard: { width: 30, height: 16, mines: 99 },
+    medium: { width: 14, height: 16, mines: 20 },
+    hard: { width: 16, height: 32, mines: 48 },
   };
 
-  function create_board_with_difficulty(difficulty) {
-    console.log(`Creating board with ${difficulty} difficulty level`);
-    const { width, height, mines } = difficultyLevels[difficulty];
-    const board = create_board(width, height, mines);
-    console.log(
-      `Board created with dimensions ${width} x ${height} and ${mines} mines`
-    );
-    setBoard(board);
-  }
+  const handleBoardSizeChange = (difficulty) => {
+    if (difficultyLevels[difficulty]) {
+      const { width, height, mines } = difficultyLevels[difficulty];
+      const maxMines = Math.floor(width * height * 0.15);
+      const newMines = Math.min(mines, maxMines);
+      const newBoard = create_board(width, height, newMines);
+      setBoard(newBoard);
+      setBoardSize(width);
+      setNumMines(newMines);
+      setNumSafeSpots(width * height - newMines);
+    }
+  };
 
-  // Set the initial state of the board variable using the create_board function
   useEffect(() => {
-    create_board_with_difficulty("medium");
+    handleBoardSizeChange("easy");
   }, []);
 
   // Function to start a new game
@@ -125,24 +115,6 @@ function MineSweeper() {
       setTime(elapsedTime);
     }, 1000);
   }
-
-  // Function to handle changes to the game board size
-  const handleBoardSizeChange = (event) => {
-    const size = parseInt(event.target.value);
-    const maxMines = Math.floor(size * size * 0.15); // Maximum number of mines based on 15% of total spots
-    let newMines = Math.floor(
-      (numMines * size * size) / (boardSize * boardSize)
-    ); // Maintain same mine density when changing board size
-    newMines = Math.min(newMines, maxMines); // Ensure number of mines doesn't exceed maximum
-
-    // Update state with new board size and number of mines
-    setBoardSize(size);
-    setNumMines(newMines);
-  };
-
-  useEffect(() => {
-    startGame(); // Start a new game when the component is mounted
-  }, []);
 
   // This function is called whenever a cell on the game board is clicked
   function handleCellClick(row, col) {
@@ -396,40 +368,45 @@ function MineSweeper() {
   }
 
   return (
-    <div className="flex justify-center items-center h-screen">
-      <div className="bg-black p-8 rounded-lg shadow-lg">
-        <h1 className="text-3xl font-bold text-white mb-4">Minesweeper</h1>
+<div className="flex justify-center items-center h-screen">
+  <div className="bg-black p-8 rounded-lg shadow-lg">
+    <h1 className="text-3xl font-bold text-white mb-4">Minesweeper</h1>
 
-        {/* Game Board */}
-        <div className="grid grid-cols-8 justify-space">
-          {board.map((row, rowIndex) => (
-            <React.Fragment key={rowIndex}>
-              {row.map((cell, colIndex) => (
-                <button
-                  key={`${rowIndex}${colIndex}`}
-                  className={`w-10 h-10 ${
-                    cell.isRevealed
-                      ? cell.isMine
-                        ? "bg-red-600"
-                        : "bg-gray-400"
-                      : "bg-gray-500"
-                  } border border-gray-800 focus:outline-thick`}
-                  onClick={() => handleCellClick(rowIndex, colIndex)}
-                  onContextMenu={(e) =>
-                    handleContextMenu(e, rowIndex, colIndex)
-                  }
-                >
-                  {cell.isFlagged && "🚩"}
-                  {cell.isRevealed &&
-                    !cell.isMine &&
-                    cell.neighborCount !== 0 &&
-                    cell.neighborCount}
-                  {cell.isRevealed && cell.isMine && "💣"}
-                </button>
-              ))}
-            </React.Fragment>
-          ))}
-        </div>
+    {/* Game Board */}
+    <div className="mt-8">
+      <div
+        className="grid grid-cols-32 grid-rows-32 justify-space"
+        style={{ gridTemplateColumns: `repeat(${board.length}, 1fr)` }}
+      >
+        {board.map((row, rowIndex) => (
+          <React.Fragment key={rowIndex}>
+            {row.map((cell, colIndex) => (
+              <button
+                key={`${rowIndex}${colIndex}`}
+                className={`w-10 h-10 ${
+                  cell.isRevealed
+                    ? cell.isMine
+                      ? "bg-red-600"
+                      : "bg-gray-400"
+                    : "bg-gray-500"
+                } border border-gray-800 focus:outline-thick`}
+                onClick={() => handleCellClick(rowIndex, colIndex)}
+                onContextMenu={(e) =>
+                  handleContextMenu(e, rowIndex, colIndex)
+                }
+              >
+                {cell.isFlagged && "🚩"}
+                {cell.isRevealed &&
+                  !cell.isMine &&
+                  cell.neighborCount !== 0 &&
+                  cell.neighborCount}
+                {cell.isRevealed && cell.isMine && "💣"}
+              </button>
+            ))}
+          </React.Fragment>
+        ))}
+      </div>
+    </div>
 
         {/* Game Status */}
         <div className="flex justify-between items-center mt-4">
@@ -448,25 +425,24 @@ function MineSweeper() {
         </div>
       </div>
       <button
-  className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 focus:outline-none"
-  onClick={() => create_board_with_difficulty("easy")}
->
-  Easy
-</button>
-<button
-  className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 focus:outline-none"
-  onClick={() => create_board_with_difficulty("medium")}
->
-  Medium
-</button>
-<button
-  className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 focus:outline-none"
-  onClick={() => create_board_with_difficulty("hard")}
->
-  Hard
-</button>
+        className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 focus:outline-none"
+        onClick={() => handleBoardSizeChange("easy")}
+      >
+        Easy
+      </button>
+      <button
+        className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 focus:outline-none"
+        onClick={() => handleBoardSizeChange("medium")}
+      >
+        Medium
+      </button>
+      <button
+        className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 focus:outline-none"
+        onClick={() => handleBoardSizeChange("hard")}
+      >
+        Hard
+      </button>
     </div>
-
   );
 }
 
