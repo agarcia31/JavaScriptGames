@@ -2,7 +2,10 @@
 module.exports = {
   content: ["./src/**/*.{html,js}"],
   theme: {
-    extend: {},
+    fontFamily: {
+      sans: ['Lato', 'Open Sans', 'Helvetica Neue', 'sans-serif'],
+      serif: ['Merriweather', 'Georgia', 'serif']
+    }
   },
   plugins: [],
 }

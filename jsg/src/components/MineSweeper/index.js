@@ -11,6 +11,17 @@ function MineSweeper() {
   const [boardSize, setBoardSize] = useState(8);
   const [time, setTime] = useState(0);
 
+  useEffect(() => {
+    const startTime = new Date().getTime();
+    const intervalId = setInterval(() => {
+      const currentTime = new Date().getTime();
+      const elapsedTime = Math.floor((currentTime - startTime) / 1000);
+      setTime(elapsedTime);
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
   function create_board(width, height, numMines) {
     const board = [];
 
@@ -381,17 +392,24 @@ function MineSweeper() {
 
   return (
     <div className="flex flex-col justify-center items-center h-screen bg-gradient-to-br from-green-400 via-blue-500 to-purple-500 p-8 rounded-lg shadow-lg border-2 border-gray-800 text-gray-100">
-      <div className="bg-gradient-to-br from-green-400 to-blue-600 p-8 rounded-lg shadow-lg text-gray-100 border border-green-900">
-        <h1 className="text-center text-3xl font-bold text-white mb-4">
+      <div className="bg-gradient-to-br from-green-400 to-blue-600 p-8 rounded-lg shadow-lg text-gray-100 border border-green-900 ">
+        <h1
+          className="text-center text-3xl font-bold text-white mb-4"
+          style={{ fontFamily: "Lato, sans-serif", fontSize: "50px" }}
+        >
           Minesweeper
         </h1>
-        <p className="text-white mb-2 md:mb-0">
+        <p
+          className="text-center text-white mb-2 md:mb-0"
+          style={{ fontFamily: "Lato, sans-serif", fontSize: "25px" }}
+        >
           Safe Spots Remaining: {numSafeSpots - numMines}
         </p>
+
         {/* Game Status */}
         <div className="flex flex-col md:flex-row justify-between items-center mt-4">
-          <div className="flex flex-col md:flex-row justify-between items-center mt-4">
-            <p className="text-white">
+          <div className="w-full flex flex-col md:flex-row justify-between items-center mt-4">
+            <p className="text-center text-white">
               {gameOver && (gameStatus === "won" ? "You Win!" : "You Lose!")}
             </p>
           </div>

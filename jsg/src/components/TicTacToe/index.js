@@ -1,122 +1,110 @@
 import React, { useState } from "react";
+import classNames from "classnames";
 
-function TicTacToe() {
+const TicTacToe = () => {
   const [board, setBoard] = useState(Array(9).fill(null));
   const [player, setPlayer] = useState("X");
-  const [status, setStatus] = useState("Next player: X");
-  const [xWins, setXWins] = useState(0);
-  const [oWins, setOWins] = useState(0);
+  const [gameOver, setGameOver] = useState(false);
+  const [winner, setWinner] = useState(null);
 
-  function handleClick(index) {
-    // If there is already a winner or the square is already occupied, do nothing
-    if (calculateWinner(board) || board[index]) {
+  const handleSquareClick = (index) => {
+    if (board[index] || gameOver) {
       return;
     }
 
     const newBoard = [...board];
     newBoard[index] = player;
     setBoard(newBoard);
-    setPlayer(player === "X" ? "O" : "X");
 
-    // Check for winner after each move
-    const winner = calculateWinner(newBoard);
-    if (winner) {
-      setStatus(`Winner: ${winner}`);
-      if (winner === "X") {
-        setXWins(xWins + 1);
-      } else {
-        setOWins(oWins + 1);
-      }
-    } else {
-      setStatus(`Next player: ${player}`);
+    const newPlayer = player === "X" ? "O" : "X";
+    setPlayer(newPlayer);
+
+    const newWinner = calculateWinner(newBoard);
+    if (newWinner) {
+      setGameOver(true);
+      setWinner(newWinner);
+    } else if (!newBoard.includes(null)) {
+      setGameOver(true);
     }
-  }
+  };
 
-  function handleRestart() {
+  const calculateWinner = (board) => {
+    const lines = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+
+    for (let i = 0; i < lines.length; i++) {
+      const [a, b, c] = lines[i];
+      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+        return board[a];
+      }
+    }
+
+    return null;
+  };
+
+  const resetGame = () => {
     setBoard(Array(9).fill(null));
     setPlayer("X");
-    setStatus("Next player: X");
-  }
-
-  function renderSquare(index) {
-    const squareValue = board[index];
-    let bgColor = "bg-green-500";
-    if (squareValue === "X") {
-      bgColor = "bg-blue-600";
-    } else if (squareValue === "O") {
-      bgColor = "bg-red-600";
-    }
-    return (
-      <div className="flex justify-center items-center">
-        <button
-          className={` ${bgColor} hover:bg-gray-800 font-bold py-48 px-48 rounded`}
-          onClick={() => handleClick(index)}
-        >
-          <span style={{ fontSize: `36px`, color: "white" }}>{squareValue}</span>
-        </button>
-      </div>
-    );
-  }
-
-  const winner = calculateWinner(board);
+    setGameOver(false);
+    setWinner(null);
+  };
 
   return (
-    <div>
-<div style={{ backgroundColor: "#262626" }}>
-  <div className="grid grid-cols-3 gap-1 p-12">
-    <div className="col-span-3 text-center font-bold">
-      <h1 className="text-4xl text-white mb-4" style={{ fontFamily: "Arial", fontSize:"96px" }}>Tic Tac Toe</h1>
-    </div>
-
-    <div className="col-span-3 text-center text-white font-bold">
-      <div className="text-3xl mb-8" style={{ marginTop: "25px" }}>
-        {winner ? `Winner: ${winner}` : <span style={{ fontFamily: "Arial", fontSize:"48px" }}>Next player: {player}</span>}
-      </div>
-      <div className="text-lg mb-4" style={{ fontFamily: "Arial", fontSize:"28px", marginTop: "5px" }}>
-        X Wins: {xWins} | O Wins: {oWins}
-      </div>
-    </div>
-  </div>
+    <div className="flex flex-col items-center justify-center h-full w-full">
+      <div className="bg-gray-800 rounded-lg p-6">
+        <h1
+          className="text-center font-bold mb-4 text-white"
+          style={{ fontSize: "48px" }}
+        >
+          Tic Tac Toe
+        </h1>
+        <div className="grid grid-cols-3 gap-2">
+  {board.map((square, index) => (
+    <button
+      key={index}
+      className={classNames(
+        "w-28 h-28 m-1 text-3xl font-bold text-white rounded-lg border-gray-500 border-2",
+        {
+          "bg-red-500": square === "O",
+          "bg-gray-500 cursor-not-allowed": square !== null || gameOver,
+          "bg-blue-500": square === "X",
+        }
+      )}
+      onClick={() => handleSquareClick(index)}
+      disabled={square || gameOver}
+    >
+      {square}
+    </button>
+  ))}
 </div>
 
-
-  
-      <div className={`grid grid-cols-3 gap-4`} style={{ backgroundColor: "#A9A3A3", margin: "5px" }}>
-        {board.map((square, index) => (
-          <div key={index} className="col-span-1">
-            {renderSquare(index)}
+        {gameOver && (
+          <div
+            className="text-center font-bold mt-4 text-white"
+            style={{ fontSize: "32px" }}
+          >
+            {winner ? `${winner} wins!` : "It's a tie!"}
           </div>
-        ))}
-  
-        <div className="col-span-3 text-center font-bold text-lg mt-4">
-          <button className="bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded" onClick={handleRestart}>
-            Restart
+        )}
+        <div className="flex justify-center">
+          <button
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg font-bold"
+            onClick={resetGame}
+          >
+            Reset Game
           </button>
         </div>
       </div>
     </div>
-  );    
-}
-
-
-function calculateWinner(board) {
-  const lines = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-  ];
-  for (let i = 0; i < lines.length; i++) {
-    const [a, b, c] = lines[i];
-    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-      return board[a];
-    }
-  }
-  return null;
-}
+  );
+};
 
 export default TicTacToe;
