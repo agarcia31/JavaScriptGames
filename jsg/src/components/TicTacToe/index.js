@@ -29,9 +29,7 @@ const TicTacToe = () => {
       setGameOver(true);
     }
 
-    const animationClasses = [
-      "animate-spin",
-    ];
+    const animationClasses = ["animate-spin"];
     const randomClass =
       animationClasses[Math.floor(Math.random() * animationClasses.length)];
     console.log("Random animation class selected:", randomClass);
@@ -42,7 +40,7 @@ const TicTacToe = () => {
       const newAnimations = [...animations];
       newAnimations[index] = null;
       setAnimations(newAnimations);
-    }, 1000);
+    }, 450);
   };
 
   const calculateWinner = (board) => {
@@ -75,24 +73,31 @@ const TicTacToe = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-full w-full">
-      <div className="bg-gray-800 rounded-lg p-6">
-        <h1 className="text-5xl font-bold mb-4 text-white">Tic Tac Toe</h1>
-
-        <div className="grid grid-cols-3 gap-2">
+    <div className="flex h-screen items-center justify-center">
+    <div className="flex flex-col items-center justify-center bg-black rounded-lg p-2 md:p-6">
+        <h1 className="mb-4 text-white text-center md:text-left"  style={{
+            fontSize: "100px",
+            fontFamily: "Great Vibes",
+          }}>
+          Tic-Tac-Toe
+        </h1>
+  
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 justify-items-center">
           {board.map((square, index) => (
             <button
               id={`square-${index}`}
               key={index}
               className={classNames(
-                "w-28 h-28 m-1 text-3xl font-bold text-white rounded-lg border-gray-500 border-2",
+                "w-12 h-12 sm:w-24 sm:h-24 md:w-48 md:h-48 m-1 text-white rounded-lg border-white border-4 focus:outline-none",
                 {
-                  "bg-red-500": square === "O",
-                  "bg-gray-500 cursor-not-allowed": square !== null || gameOver,
-                  "bg-blue-500": square === "X",
+                  "bg-red-600": square === "O",
+                  "bg-blue-600": square === "X",
                   [animations[index]]: animations[index],
                 }
-              )}
+              )} style={{
+                fontSize: "125px",
+                fontFamily: "Shadows Into Light",
+              }}
               onClick={() => handleSquareClick(index)}
               disabled={square || gameOver}
             >
@@ -100,18 +105,19 @@ const TicTacToe = () => {
             </button>
           ))}
         </div>
-
+  
         {gameOver && (
-          <div
-            className="text-center font-bold mt-4 text-white"
-            style={{ fontSize: "32px" }}
-          >
+          <div className="text-center font-bold mt-4 text-white text-2xl md:text-3xl">
             {winner ? `${winner} wins!` : "It's a tie!"}
           </div>
         )}
-        <div className="flex justify-center">
+  
+        <div className="flex justify-center mt-4">
           <button
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg font-bold"
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg font-bold" style={{
+              fontSize: "40px",
+              fontFamily: "Shadows Into Light",
+            }}
             onClick={resetGame}
           >
             Reset Game
@@ -119,7 +125,7 @@ const TicTacToe = () => {
         </div>
       </div>
     </div>
-  );
+  );  
 };
 
 export default TicTacToe;

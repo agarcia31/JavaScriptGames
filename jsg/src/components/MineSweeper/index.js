@@ -81,9 +81,9 @@ function MineSweeper() {
   }, []);
 
   const difficultyLevels = {
-    easy: { width: 8, height: 12, mines: 10 },
-    medium: { width: 12, height: 18, mines: 20 },
-    hard: { width: 16, height: 48, mines: 48 },
+    easy: { width: 10, height: 14, mines: 10 },
+    medium: { width: 14, height: 20, mines: 20 },
+    hard: { width: 20, height: 45, mines: 48 },
   };
 
   const handleBoardSizeChange = (difficulty) => {
@@ -391,17 +391,31 @@ function MineSweeper() {
   }
 
   return (
-    <div className="flex flex-col justify-center items-center h-screen bg-gradient-to-br from-green-400 via-blue-500 to-purple-500 p-8 rounded-lg shadow-lg border-2 border-gray-800 text-gray-100">
-      <div className="bg-gradient-to-br from-green-400 to-blue-600 p-8 rounded-lg shadow-lg text-gray-100 border border-green-900 ">
+    <div className="flex flex-col justify-center items-center min-h-screen bg-gradient-to-br from-green-400 via-blue-500 to-purple-500 p-8 rounded-lg shadow-lg border-2 border-gray-800 text-gray-100 max-w-4xl mx-auto md:max-w-none">
+      <div className="p-8 rounded-lg shadow-lg text-gray-100 border border-green-900 " style={{
+            background: "linear-gradient(to right, #C300EF, #0004EF)",}}>
         <h1
-          className="text-center text-3xl font-bold text-white mb-4"
-          style={{ fontFamily: "Lato, sans-serif", fontSize: "50px" }}
+          className="text-center font-bold text-5xl"
+          style={{
+            fontFamily: "Bangers",
+            fontSize: "60px",
+            background: "linear-gradient(to right,#00E0FF, #55FF00)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            color: "white",
+          }}
         >
           Minesweeper
         </h1>
         <p
-          className="text-center text-white mb-2 md:mb-0"
-          style={{ fontFamily: "Lato, sans-serif", fontSize: "25px" }}
+          className="text-center text-blue-600"
+          style={{
+            fontFamily: "Bangers",
+            fontSize: "30px",
+            background: "linear-gradient(to right,#00E0FF, #55FF00)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
         >
           Safe Spots Remaining: {numSafeSpots - numMines}
         </p>
@@ -417,7 +431,7 @@ function MineSweeper() {
         {/* Game Board */}
         <div className="mt-8">
           <div
-            className="grid grid-cols-32 grid-rows-32 justify-content-center items-center"
+            className="grid grid-cols-32 grid-auto-rows justify-content-center items-center"
             style={{ gridTemplateColumns: `repeat(${board.length}, 2rem)` }}
           >
             {board.map((row, rowIndex) => (
@@ -456,29 +470,53 @@ function MineSweeper() {
           </div>
 
           {/* Difficulty Buttons */}
-          <div className="flex justify-between items-center mt-4">
-            <div className="flex space-x-2">
+          <div className="flex flex-wrap justify-between items-center mt-4">
+            <div className="flex space-x-2 mb-4 md:mb-0">
               <button
-                className="px-4 py-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 focus:outline-none"
+                className="px-4 py-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 focus:outline-none" style={{
+                  fontFamily: "Bangers",
+                  fontSize: "30px",
+                  background: "linear-gradient(to right #BF50FF, #2D71F2)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
                 onClick={() => handleBoardSizeChange("easy")}
               >
                 Easy
               </button>
               <button
-                className="px-4 py-2 rounded-full bg-gradient-to-r from-green-500 to-blue-500 text-white hover:from-green-600 hover:to-blue-600 focus:outline-none"
+                className="px-4 py-2 rounded-full bg-gradient-to-r from-green-500 to-blue-500 text-white hover:from-green-600 hover:to-blue-600 focus:outline-none"style={{
+                  fontFamily: "Bangers",
+                  fontSize: "30px",
+                  background: "linear-gradient(to right,#00E0FF, #55FF00)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
                 onClick={() => handleBoardSizeChange("medium")}
               >
                 Medium
               </button>
               <button
-                className="px-4 py-2 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:from-purple-600 hover:to-indigo-600 focus:outline-none"
+                className="px-4 py-2 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:from-purple-600 hover:to-indigo-600 focus:outline-none"style={{
+                  fontFamily: "Bangers",
+                  fontSize: "30px",
+                  background: "linear-gradient(to right,#00E0FF, #A200FF)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
                 onClick={() => handleBoardSizeChange("hard")}
               >
                 Hard
               </button>
             </div>
             <button
-              className="px-4 py-2 rounded-full bg-gradient-to-r from-red-500 to-yellow-500 text-white hover:from-red-600 hover:to-yellow-600 focus:outline-none"
+              className="px-4 py-2 rounded-full bg-gradient-to-r from-red-500 to-yellow-500 text-white hover:from-red-600 hover:to-yellow-600 focus:outline-none"style={{
+                fontFamily: "Bangers",
+                fontSize: "30px",
+                background: "linear-gradient(to right,#FF0C00, #FFFB00)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
               onClick={() => startGame()}
             >
               Reset Game
