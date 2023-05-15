@@ -9,6 +9,7 @@ const Home = () => {
     { id: 'battleship', label: 'Battle Ship "Under Construction"', link: '/battleship' },
     { id: 'connectfour', label: 'Connect Four', link: '/connect-four' },
     { id: 'minesweeper', label: 'Mine Sweeper', link: '/mine-sweeper' },
+    { id: 'breakout', label: 'Break Out', link: '/break-out' },
   ];
 
   const renderPage = () => {

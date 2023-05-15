@@ -24,6 +24,11 @@ const pages = [
     route: '/mine-sweeper',
     label: 'Mine Sweeper',
   },
+  {
+    id:6,
+    route: '/break-out',
+    label: 'Break Out',
+  },
 ];
 
 export default pages;
