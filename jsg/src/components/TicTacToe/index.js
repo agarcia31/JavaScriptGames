@@ -8,6 +8,8 @@ const TicTacToe = () => {
   const [winner, setWinner] = useState(null);
   const [animationClass, setAnimationClass] = useState(null);
   const [animations, setAnimations] = useState(Array(9).fill(null));
+  const [playerXWins, setPlayerXWins] = useState(0);
+  const [playerOWins, setPlayerOWins] = useState(0);
 
   const handleSquareClick = (index) => {
     if (board[index] || gameOver) {
@@ -25,6 +27,11 @@ const TicTacToe = () => {
     if (newWinner) {
       setGameOver(true);
       setWinner(newWinner);
+      if (newWinner === "X") {
+        setPlayerXWins((prevWins) => prevWins + 1);
+      } else if (newWinner === "O") {
+        setPlayerOWins((prevWins) => prevWins + 1);
+      }
     } else if (!newBoard.includes(null)) {
       setGameOver(true);
     }
@@ -74,14 +81,29 @@ const TicTacToe = () => {
 
   return (
     <div className="flex h-screen items-center justify-center">
-    <div className="flex flex-col items-center justify-center bg-black rounded-lg p-2 md:p-6">
-        <h1 className="mb-4 text-white text-center md:text-left"  style={{
+      <div className="flex flex-col items-center justify-center bg-black rounded-lg p-2 md:p-6">
+        <h1
+          className=" text-white text-center md:text-left"
+          style={{
             fontSize: "100px",
             fontFamily: "Great Vibes",
-          }}>
+          }}
+        >
           Tic-Tac-Toe
         </h1>
-  
+        <div className="text-white">
+          <div
+            className="flex"
+            style={{
+              fontSize: "30px",
+              fontFamily: "Great Vibes",
+            }}
+          >
+            <p className="mr-4">Player X Wins: {playerXWins}</p>
+            <p>Player O Wins: {playerOWins}</p>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 justify-items-center">
           {board.map((square, index) => (
             <button
@@ -94,7 +116,8 @@ const TicTacToe = () => {
                   "bg-blue-600": square === "X",
                   [animations[index]]: animations[index],
                 }
-              )} style={{
+              )}
+              style={{
                 fontSize: "125px",
                 fontFamily: "Shadows Into Light",
               }}
@@ -105,16 +128,17 @@ const TicTacToe = () => {
             </button>
           ))}
         </div>
-  
+
         {gameOver && (
           <div className="text-center font-bold mt-4 text-white text-2xl md:text-3xl">
             {winner ? `${winner} wins!` : "It's a tie!"}
           </div>
         )}
-  
+
         <div className="flex justify-center mt-4">
           <button
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg font-bold" style={{
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg font-bold"
+            style={{
               fontSize: "40px",
               fontFamily: "Shadows Into Light",
             }}
@@ -125,7 +149,7 @@ const TicTacToe = () => {
         </div>
       </div>
     </div>
-  );  
+  );
 };
 
 export default TicTacToe;
