@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBomb } from "@fortawesome/free-solid-svg-icons";
 import Timer from "../Timer";
 
 function MineSweeper() {
@@ -127,7 +126,6 @@ function MineSweeper() {
     }, 1000);
   }
 
-  // This function is called whenever a cell on the game board is clicked
   function handleCellClick(row, col) {
     // Get the cell that was clicked
     const clickedCell = board[row][col];
@@ -163,6 +161,10 @@ function MineSweeper() {
     if (numSafeSpots === numMines) {
       setGameOver(true);
     }
+
+    // Show the number of adjacent mines for the clicked cell
+    newBoard[row][col].count = numAdjacentMines;
+    setBoard(newBoard);
   }
 
   // This function returns the number of mines adjacent to a given cell
@@ -219,6 +221,7 @@ function MineSweeper() {
           revealEmptyCells(adjRow, adjCol, newBoard);
         } else {
           newBoard[adjRow][adjCol].isRevealed = true;
+          console.log(`There are ${numAdjacentMines} mines nearby.`);
         }
         setNumSafeSpots(numSafeSpots - 1);
       }
@@ -389,11 +392,36 @@ function MineSweeper() {
       boardElement.appendChild(rowElement);
     });
   }
+  function countNearbyMines(rowIndex, colIndex) {
+    // Calculate the number of nearby mines
+    let count = 0;
+    const offsets = [-1, 0, 1];
+    offsets.forEach((rowOffset) => {
+      offsets.forEach((colOffset) => {
+        const neighborRow = rowIndex + rowOffset;
+        const neighborCol = colIndex + colOffset;
+        if (
+          neighborRow >= 0 &&
+          neighborRow < board.length &&
+          neighborCol >= 0 &&
+          neighborCol < board[0].length &&
+          board[neighborRow][neighborCol].isMine
+        ) {
+          count++;
+        }
+      });
+    });
+    return count;
+  }
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen bg-gradient-to-br from-green-400 via-blue-500 to-purple-500 p-8 rounded-lg shadow-lg border-2 border-gray-800 text-gray-100 max-w-4xl mx-auto md:max-w-none">
-      <div className="p-8 rounded-lg shadow-lg text-gray-100 border border-green-900 " style={{
-            background: "linear-gradient(to right, #C300EF, #0004EF)",}}>
+    <div className="flex flex-col justify-center items-center min-h-screen bg-gradient-to-br from-green-600 via-blue-300 to-purple-600 p-8 rounded-lg shadow-lg border-2 border-gray-800 text-gray-100 max-w-4xl mx-auto md:max-w-none">
+      <div
+        className="p-8 rounded-lg shadow-lg text-gray-100 border border-green-900 "
+        style={{
+          background: "linear-gradient(to right, #C300EF, #0004EF)",
+        }}
+      >
         <h1
           className="text-center font-bold text-5xl"
           style={{
@@ -405,7 +433,7 @@ function MineSweeper() {
             color: "white",
           }}
         >
-          Minesweeper
+          Alien Sweeper
         </h1>
         <p
           className="text-center text-blue-600"
@@ -436,35 +464,53 @@ function MineSweeper() {
           >
             {board.map((row, rowIndex) => (
               <React.Fragment key={rowIndex}>
-                {row.map((cell, colIndex) => (
-                  <button
-                    key={`${rowIndex}${colIndex}`}
-                    className={`w-10 h-10 flex-grow-0 flex-shrink-0 ${
-                      cell.isRevealed
-                        ? cell.isMine
-                          ? "bg-red-600"
-                          : "bg-gradient-to-br from-blue-500 to-purple-500"
-                        : "bg-gradient-to-br from-blue-400 to-purple-400"
-                    } border border-gray-800 focus:outline-thick hover:bg-gradient-to-br ${
-                      cell.isRevealed
-                        ? cell.isMine
-                          ? "bg-red-600"
-                          : "from-blue-500 to-purple-500"
-                        : "from-blue-400 to-purple-400"
-                    }`}
-                    onClick={() => handleCellClick(rowIndex, colIndex)}
-                    onContextMenu={(e) =>
-                      handleContextMenu(e, rowIndex, colIndex)
-                    }
-                  >
-                    {cell.isFlagged && "🚩"}
-                    {cell.isRevealed &&
-                      !cell.isMine &&
-                      cell.neighborCount !== 0 &&
-                      cell.neighborCount}
-                    {cell.isRevealed && cell.isMine && "💣"}
-                  </button>
-                ))}
+                {row.map((cell, colIndex) => {
+                  const isCellRevealed = cell.isRevealed;
+                  const isCellMine = cell.isMine;
+                  const neighborCount = countNearbyMines(rowIndex, colIndex);
+
+                  return (
+                    <button
+                      key={`${rowIndex}${colIndex}`}
+                      className={`w-10 h-10 flex-grow-0 flex-shrink-0 ${
+                        isCellRevealed
+                          ? isCellMine
+                            ? "bg-red-600"
+                            : "bg-gradient-to-br from-blue-500 to-purple-500"
+                          : "bg-gradient-to-br from-blue-600 to-purple-600"
+                      } border border-gray-800 focus:outline-thick hover:bg-gradient-to-br ${
+                        isCellRevealed
+                          ? isCellMine
+                            ? "bg-red-600"
+                            : "from-blue-500 to-purple-500"
+                          : "from-blue-400 to-purple-400"
+                      }`}
+                      onClick={() => handleCellClick(rowIndex, colIndex)}
+                      onContextMenu={(e) =>
+                        handleContextMenu(e, rowIndex, colIndex)
+                      }
+                    >
+                      {cell.isFlagged && "🛸"}
+                      {isCellRevealed && !isCellMine && neighborCount > 0 && (
+                        <span
+                          className="text-white"
+                          style={{
+                            color: "#FFEC00", // Customize the color here
+                            fontFamily: "Bangers", // Customize the font family here
+                            fontSize: "24px", // Customize the font size here
+                          }}
+                        >
+                          {neighborCount}
+                        </span>
+                      )}
+                      {isCellRevealed && isCellMine && (
+                        <span role="img" aria-label="Alien">
+                          👽
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
               </React.Fragment>
             ))}
           </div>
@@ -473,10 +519,11 @@ function MineSweeper() {
           <div className="flex flex-wrap justify-between items-center mt-4">
             <div className="flex space-x-2 mb-4 md:mb-0">
               <button
-                className="px-4 py-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 focus:outline-none" style={{
+                className="px-4 py-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 focus:outline-none"
+                style={{
                   fontFamily: "Bangers",
                   fontSize: "30px",
-                  background: "linear-gradient(to right #BF50FF, #2D71F2)",
+                  background: "linear-gradient(to right,#00E0FF, #55FF00)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                 }}
@@ -485,7 +532,8 @@ function MineSweeper() {
                 Easy
               </button>
               <button
-                className="px-4 py-2 rounded-full bg-gradient-to-r from-green-500 to-blue-500 text-white hover:from-green-600 hover:to-blue-600 focus:outline-none"style={{
+                className="px-4 py-2 rounded-full bg-gradient-to-r from-green-500 to-blue-500 text-white hover:from-green-600 hover:to-blue-600 focus:outline-none"
+                style={{
                   fontFamily: "Bangers",
                   fontSize: "30px",
                   background: "linear-gradient(to right,#00E0FF, #55FF00)",
@@ -497,10 +545,11 @@ function MineSweeper() {
                 Medium
               </button>
               <button
-                className="px-4 py-2 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:from-purple-600 hover:to-indigo-600 focus:outline-none"style={{
+                className="px-4 py-2 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:from-purple-600 hover:to-indigo-600 focus:outline-none"
+                style={{
                   fontFamily: "Bangers",
                   fontSize: "30px",
-                  background: "linear-gradient(to right,#00E0FF, #A200FF)",
+                  background: "linear-gradient(to right,#00E0FF, #55FF00)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                 }}
@@ -510,7 +559,8 @@ function MineSweeper() {
               </button>
             </div>
             <button
-              className="px-4 py-2 rounded-full bg-gradient-to-r from-red-500 to-yellow-500 text-white hover:from-red-600 hover:to-yellow-600 focus:outline-none"style={{
+              className="px-4 py-2 rounded-full bg-gradient-to-r from-red-500 to-yellow-500 text-white hover:from-red-600 hover:to-yellow-600 focus:outline-none"
+              style={{
                 fontFamily: "Bangers",
                 fontSize: "30px",
                 background: "linear-gradient(to right,#FF0C00, #FFFB00)",
