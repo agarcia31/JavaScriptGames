@@ -5,10 +5,13 @@ import BattleShip from './components/BattleShip';
 import ConnectFour from './components/ConnectFour';
 import TicTacToe from './components/TicTacToe';
 import MineSweeper from './components/MineSweeper';
+import BreakOutGame from './components/BreakOutGame';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './dist/output.css';
 import './input.css';
 import pages from './pages';
+
+
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -45,6 +48,7 @@ function App() {
                 <Route path="/battleship" element={<BattleShip />} />
                 <Route path="/connect-four" element={<ConnectFour />} />
                 <Route path="/mine-sweeper" element={<MineSweeper />} />
+                <Route path="/break-out-game" element={<BreakOutGame />} />
               </Routes>
             )}
           </div>

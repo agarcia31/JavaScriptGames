@@ -26,8 +26,8 @@ const pages = [
   },
   {
     id:6,
-    route: '/break-out',
-    label: 'Break Out',
+    route: '/break-out-game',
+    label: 'Break Out Game',
   },
 ];
 
